@@ -35,4 +35,3 @@ class ShippingAddress extends Model
         return $this->belongsTo(User::class, 'userID', 'userID');
     }
 }
-
