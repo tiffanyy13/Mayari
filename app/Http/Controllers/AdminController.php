@@ -115,10 +115,8 @@ class AdminController extends Controller
         $data = $validator->validated();
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $file->move(public_path('images/products'), $filename);
-            $data['image'] = 'images/products/' . $filename;
+            $path = $request->file('image')->store('images/products', 's3');
+            $data['image'] = Storage::disk('s3')->url($path);
         } else {
             $data['image'] = 'example.image';
         }
@@ -144,14 +142,13 @@ class AdminController extends Controller
         $data = $validator->validated();
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $file->move(public_path('images/products'), $filename);
-            if ($product->image && $product->image !== 'example.image') {
-                $oldPath = public_path($product->image);
-                if (file_exists($oldPath)) @unlink($oldPath);
+            // Delete old image from S3 if it exists
+            if ($product->image && $product->image !== 'example.image' && str_starts_with($product->image, 'http')) {
+                $oldPath = parse_url($product->image, PHP_URL_PATH);
+                Storage::disk('s3')->delete(ltrim($oldPath, '/'));
             }
-            $data['image'] = 'images/products/' . $filename;
+            $path = $request->file('image')->store('images/products', 's3');
+            $data['image'] = Storage::disk('s3')->url($path);
         }
         $product->update($data);
         return back()->with('success', 'Product updated.');

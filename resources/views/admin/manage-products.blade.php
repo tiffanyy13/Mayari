@@ -116,13 +116,12 @@
                         'descript' => $product->descript,
                         'variants' => implode(', ', $product->variants ?? []),
                     ];
-                    $thumbHref = $product->storedImageHref();
                 @endphp
                 <tr>
                     <td class="col-thumb">
                         <div class="prod-thumb">
-                            @if($thumbHref)
-                                <img src="{{ $thumbHref }}" alt="">
+                            @if($product->image && $product->image !== 'example.image')
+                                <img src="{{ $product->image }}" alt="">
                             @else
                                 <span aria-hidden="true">💄</span>
                             @endif

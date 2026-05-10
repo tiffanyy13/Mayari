@@ -387,19 +387,18 @@
 
     <div class="products-grid">
         @forelse($products as $product)
-        @php($productImgHref = $product->storedImageHref())
         <div class="product-card"
             onclick="openQuickView(this)"
             data-name="{{ e($product->pName) }}"
             data-category="{{ e($product->category->cName ?? 'PRODUCT') }}"
             data-desc="{{ e($product->descript) }}"
             data-price="₱{{ number_format($product->price, 2) }}"
-            data-image="{{ $productImgHref ?? '' }}"
+            data-image="{{ $product->image && $product->image !== 'example.image' ? $product->image : '' }}"
             data-variants='@json($product->variants ?? [])'
             data-add-url="{{ route('customer.cart.add', $product->productID) }}">
             <div class="product-img">
-                @if($productImgHref)
-                    <img src="{{ $productImgHref }}" alt="{{ $product->pName }}">
+                @if($product->image && $product->image !== 'example.image')
+                    <img src="{{ $product->image }}" alt="{{ $product->pName }}">
                 @else
                     <span class="product-img-placeholder">💄</span>
                 @endif
