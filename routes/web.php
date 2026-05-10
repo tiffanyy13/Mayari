@@ -91,3 +91,7 @@ Route::middleware(['auth', 'role:admin'])->get('/fix-images', function () {
 
     return redirect()->route('admin.products')->with('success', 'Product image paths updated.');
 });
+
+Route::get('/check-images', function () {
+    return \App\Models\Product::select('pName', 'image')->get();
+});
