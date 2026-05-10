@@ -43,9 +43,8 @@ class Product extends Model
     }
 
     /**
-     * Root-relative URL path (/images/products/…) for uploaded product files.
-     * Unlike asset(), this does not use APP_URL, so images still load when the env URL
-     * does not match the browser host (common on Render if APP_URL is wrong).
+     * Root-relative URL for product images. Prefer files on the public storage disk
+     * (/storage/…) — writable on Docker/Render — then legacy files under public/.
      */
     public static function normalizeStoredImageHref(?string $image): ?string
     {
@@ -57,7 +56,19 @@ class Product extends Model
             return $path;
         }
 
-        return '/' . ltrim($path, '/');
+        $relative = ltrim($path, '/');
+        if (is_file(storage_path('app/public/'.$relative))) {
+            return '/storage/'.$relative;
+        }
+        if (is_file(public_path($relative))) {
+            return '/'.$relative;
+        }
+
+        if (str_starts_with($relative, 'images/products/')) {
+            return '/storage/'.$relative;
+        }
+
+        return '/'.$relative;
     }
 
     public function storedImageHref(): ?string

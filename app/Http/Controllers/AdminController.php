@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -108,21 +107,17 @@ class AdminController extends Controller
             'descript'   => 'required|string',
             'variants'   => 'nullable|string|max:500',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'image_url'  => 'nullable|string|max:2048|url',
         ]);
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput()->with('openAdd', true);
         }
         $data = $validator->validated();
-        unset($data['image'], $data['image_url']);
+        unset($data['image']);
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $file->move(public_path('images/products'), $filename);
-            $data['image'] = 'images/products/' . $filename;
-        } elseif ($request->filled('image_url')) {
-            $data['image'] = trim((string) $request->input('image_url'));
+            $data['image'] = $file->storeAs('images/products', $filename, 'public');
         } else {
             $data['image'] = 'example.image';
         }
@@ -141,23 +136,18 @@ class AdminController extends Controller
             'descript'   => 'required|string',
             'variants'   => 'nullable|string|max:500',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'image_url'  => 'nullable|string|max:2048|url',
         ]);
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput()->with('openEdit', $product->productID);
         }
         $data = $validator->validated();
-        unset($data['image'], $data['image_url']);
+        unset($data['image']);
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $file->move(public_path('images/products'), $filename);
             $this->deleteLocalProductImageIfAny($product->image);
-            $data['image'] = 'images/products/' . $filename;
-        } elseif ($request->filled('image_url')) {
-            $this->deleteLocalProductImageIfAny($product->image);
-            $data['image'] = trim((string) $request->input('image_url'));
+            $data['image'] = $file->storeAs('images/products', $filename, 'public');
         }
         $product->update($data);
         return back()->with('success', 'Product updated.');
@@ -337,7 +327,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Remove a previously uploaded file under public/; skip placeholder and remote URLs.
+     * Remove a previously uploaded file from the public disk or legacy public/ path.
      */
     private function deleteLocalProductImageIfAny(?string $stored): void
     {
@@ -347,9 +337,16 @@ class AdminController extends Controller
         if (preg_match('#^https?://#i', $stored)) {
             return;
         }
-        $path = public_path($stored);
-        if (is_file($path)) {
-            @unlink($path);
+        $relative = ltrim(str_replace('\\', '/', $stored), '/');
+        $candidates = [
+            storage_path('app/public/'.$relative),
+            public_path($relative),
+        ];
+        foreach ($candidates as $path) {
+            if (is_file($path)) {
+                @unlink($path);
+                break;
+            }
         }
     }
 }
