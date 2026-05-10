@@ -67,31 +67,29 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/reports/pdf',                      [AdminController::class, 'reportsPdf'])->name('reports.pdf');
 });
 
-Route::middleware(['auth', 'role:admin'])->get('/fix-images', function () {
-    $map = [
-        'BB Cream'          => 'images/products/bb-cream.jpg',
-        'Brow Gel'          => 'images/products/brow-gel.jpg',
-        'Contour Stick'     => 'images/products/contour-stick.jpg',
-        'Cream Blush'       => 'images/products/cream-blush.jpg',
-        'Eyeliner Pencil'   => 'images/products/eyeliner-pencil.jpg',
-        'Eyeshadow Palette' => 'images/products/eyeshadow-palette.jpg',
-        'Highlighter'       => 'images/products/highlighter.jpg',
-        'Lip Gloss'         => 'images/products/lip-gloss.jpg',
-        'Lip Liner'         => 'images/products/lip-liner.jpg',
-        'Lip Tint'          => 'images/products/lip-tint.jpg',
-        'Liquid Foundation' => 'images/products/liquid-foundation.png',
-        'Mascara'           => 'images/products/mascara.jpg',
-        'Matte Lipstick'    => 'images/products/matte-lipstick.jpg',
-        'Setting Powder'    => 'images/products/setting-powder.png',
-    ];
+    Route::middleware(['auth', 'role:admin'])->get('/fix-images', function () {
+        $map = [
+            'Cream Blush'       => 'images/products/cream-blush.jpg',
+            'Liquid Foundation' => 'images/products/liquid-foundation.png',
+            'Setting Powder'    => 'images/products/setting-powder.png',
+            'Highlighter'       => 'images/products/highlighter.jpg',
+            'Contour Stick'     => 'images/products/contour-stick.jpg',
+            'BB Cream'          => 'images/products/bb-cream.jpg',
+            'Eyeshadow Palette' => 'images/products/eyeshadow-palette.jpg',
+            'Mascara'           => 'images/products/mascara.jpg',
+            'Eyeliner Pencil'   => 'images/products/eyeliner-pencil.jpg',
+            'Brow Gel'          => 'images/products/brow-gel.jpg',
+            'Matte Lipstick'    => 'images/products/matte-lipstick.jpg',
+            'Lip Gloss'         => 'images/products/lip-gloss.jpg',
+            'Lip Liner'         => 'images/products/lip-liner.jpg',
+            'Lip Tint'          => 'images/products/lip-tint.jpg',
+        ];
 
-    foreach ($map as $name => $path) {
-        \App\Models\Product::where('pName', $name)->update(['image' => $path]);
-    }
+        $updated = [];
+        foreach ($map as $name => $path) {
+            $count = \App\Models\Product::where('pName', $name)->update(['image' => $path]);
+            $updated[$name] = $count . ' updated';
+        }
 
-    return redirect()->route('admin.products')->with('success', 'Product image paths updated.');
-});
-
-Route::get('/check-images', function () {
-    return \App\Models\Product::select('pName', 'image')->get();
-});
+        return $updated;
+    });
