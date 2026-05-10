@@ -12,7 +12,6 @@
         min-height: 100vh;
     }
 
-    /* LEFT PANEL */
     .auth-left {
         flex: 1;
         background: url('/images/auth-bg.jpg') center center / cover no-repeat;
@@ -67,7 +66,6 @@
         object-fit: contain;
     }
 
-    /* RIGHT PANEL */
     .auth-right {
         width: 460px;
         background: #e8daea;
@@ -152,7 +150,7 @@
         .auth-right { width: 100%; padding: 2.5rem 1.75rem; }
     }
 
-    /* ── MOBILE RESPONSIVE – auth ── */
+    /*auth w mobile responsive*/
     @media (max-width: 768px) {
         .auth-left  { display: none !important; }
         .auth-right { width: 100% !important; padding: 2.5rem 1.75rem !important; }

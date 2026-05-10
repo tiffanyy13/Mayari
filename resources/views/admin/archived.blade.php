@@ -38,7 +38,7 @@
                         <div style="display:flex;align-items:center;gap:.85rem;">
                             <div style="width:44px;height:44px;border-radius:8px;background:var(--porcelain-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem;overflow:hidden;">
                                 @if($product->image && $product->image !== 'example.image')
-                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->pName }}" style="width:100%;height:100%;object-fit:cover;">
+                                    <img src="{{ asset($product->image) }}" alt="{{ $product->pName }}" style="width:100%;height:100%;object-fit:cover;">
                                 @else
                                     💄
                                 @endif
@@ -64,6 +64,21 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    {{--pagination (same bar as Orders / Customers / Manage Products)--}}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.5rem;background:var(--violet-night);color:var(--porcelain);">
+        @if($products->onFirstPage())
+            <span style="color:rgba(233,213,230,0.4);font-size:0.82rem;font-weight:500;">← Previous</span>
+        @else
+            <a href="{{ $products->previousPageUrl() }}" style="color:var(--porcelain);text-decoration:none;font-size:0.82rem;font-weight:500;transition:opacity 0.18s;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">← Previous</a>
+        @endif
+        <span style="font-size:0.82rem;">Page {{ $products->currentPage() }}</span>
+        @if($products->hasMorePages())
+            <a href="{{ $products->nextPageUrl() }}" style="color:var(--porcelain);text-decoration:none;font-size:0.82rem;font-weight:500;transition:opacity 0.18s;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Next →</a>
+        @else
+            <span style="color:rgba(233,213,230,0.4);font-size:0.82rem;font-weight:500;">Next →</span>
+        @endif
     </div>
 </div>
 @endif

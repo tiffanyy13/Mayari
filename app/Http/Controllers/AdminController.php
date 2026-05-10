@@ -93,7 +93,7 @@ class AdminController extends Controller
 
     public function products()
     {
-        $products   = Product::active()->with('category')->get();
+        $products   = Product::active()->with('category')->orderBy('pName')->paginate(10)->withQueryString();
         $categories = Category::all();
         return view('admin.manage-products', compact('products', 'categories'));
     }
@@ -115,7 +115,10 @@ class AdminController extends Controller
         $data = $validator->validated();
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('images/products'), $filename);
+            $data['image'] = 'images/products/' . $filename;
         } else {
             $data['image'] = 'example.image';
         }
@@ -141,11 +144,14 @@ class AdminController extends Controller
         $data = $validator->validated();
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
-            $newImage = $request->file('image')->store('products', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('images/products'), $filename);
             if ($product->image && $product->image !== 'example.image') {
-                Storage::disk('public')->delete($product->image);
+                $oldPath = public_path($product->image);
+                if (file_exists($oldPath)) @unlink($oldPath);
             }
-            $data['image'] = $newImage;
+            $data['image'] = 'images/products/' . $filename;
         }
         $product->update($data);
         return back()->with('success', 'Product updated.');
@@ -165,9 +171,9 @@ class AdminController extends Controller
 
     public function archived()
     {
-        $products   = Product::archived()->with('category')->get();
-        $categories = Category::all();
-        return view('admin.archived', compact('products', 'categories'));
+        $products = Product::archived()->with('category')->orderBy('pName')->paginate(10)->withQueryString();
+
+        return view('admin.archived', compact('products'));
     }
 
     public function customers(Request $request)

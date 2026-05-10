@@ -285,11 +285,12 @@ class CustomerController extends Controller
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        $request->validate([
+        $request->validate(
+            [
             'firstName'   => 'required|string|max:100',
             'lastName'    => 'required|string|max:100',
             'email'       => 'required|email|unique:users,email,' . $user->userID . ',userID',
-            'phone' => ['nullable', 'string', 'max:13', 'regex:/^(09\\d{9}|\\+639\\d{9})$/'],
+            'phone'       => ['nullable', 'string', 'size:11', 'regex:/^09[0-9]{9}$/'],
             'password'    => 'nullable|string|min:6|confirmed',
             'shipping_addressLine' => 'nullable|string|max:255',
             'shipping_city' => 'nullable|string|max:100',
@@ -297,7 +298,12 @@ class CustomerController extends Controller
             'shipping_country' => 'nullable|string|max:100',
             'shipping_postal' => 'nullable|string|max:20',
             'shipping_label' => 'nullable|string|max:30',
-        ]);
+            ],
+            [
+                'phone.size'  => 'Mobile number must be exactly 11 digits (e.g. 09171234567).',
+                'phone.regex' => 'Use a Philippine mobile number: 11 digits starting with 09 (e.g. 09171234567).',
+            ]
+        );
 
         $data = [
             'firstName'   => $request->firstName,

@@ -64,5 +64,6 @@ class DatabaseSeeder extends Seeder
         foreach ($lipItems as $p) {
             Product::create(array_merge($p, ['categoryID' => $lip->categoryID, 'image' => 'example.image']));
         }
+ 
     }
 }

@@ -4,8 +4,6 @@
 @push('styles')
 <style>
     body { background: #f8f4fc; display: flex; flex-direction: column; min-height: 100vh; }
-
-    /* ─── NAVBAR ─────────────────────────────────────────────────────── */
     .navbar { background: var(--violet-night); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(45,28,66,0.4); }
 
     .navbar-logo-row {
@@ -66,8 +64,6 @@
         transition: all 0.18s; text-transform: uppercase; letter-spacing: 0.04em;
     }
     .btn-logout:hover { background: rgba(233,213,230,0.15); color: #fff; border-color: rgba(233,213,230,0.7); }
-
-    /* ─── PAGE ───────────────────────────────────────────────────────── */
     .page { max-width:1400px; margin:0 auto; padding:2.25rem 2.25rem 2.25rem 2.75rem; flex:1; width:100%; }
     .back-link { display:inline-flex; align-items:center; gap:0.4rem; color:var(--text-mid); font-size:0.875rem; font-weight:500; text-decoration:none; margin-bottom:1.5rem; transition:color 0.2s; }
     .back-link:hover { color:var(--violet-night); }
@@ -100,7 +96,7 @@
     .btn-shop { display:inline-flex; align-items:center; gap:.5rem; background:var(--violet-night); color:var(--snow); padding:.75rem 1.75rem; border-radius:6px; text-decoration:none; font-weight:600; font-size:.875rem; }
     .btn-shop:hover { background: var(--violet-mid); }
 
-    /* ── MOBILE RESPONSIVE – orders ── */
+    /*orders w mobile responsive*/
     @media (max-width: 768px) {
         .page { padding: 1.25rem 1rem !important; }
         .page-heading { font-size: 1.5rem !important; }

@@ -10,48 +10,76 @@
     <style>
         .flash-stack {
             position: fixed;
-            top: 74px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 1.25rem;
+            right: 1.25rem;
+            left: auto;
+            top: auto;
+            transform: none;
             z-index: 1200;
-            width: min(640px, calc(100% - 2rem));
+            width: min(380px, calc(100vw - 2rem));
             display: flex;
             flex-direction: column;
-            gap: 0.6rem;
+            gap: 0.55rem;
+            pointer-events: none;
         }
+        .flash-stack .flash-toast { pointer-events: auto; }
         .flash-toast {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            gap: 0.6rem;
-            border-radius: 10px;
-            padding: 0.85rem 1.1rem;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-            font-size: 0.9rem;
+            gap: 0.65rem;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            font-size: 0.875rem;
             font-weight: 600;
-            opacity: 1;
-            border: 1px solid transparent;
+            color: var(--text-dark);
+            background: rgba(255, 249, 255, 0.78);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(45, 28, 66, 0.12);
+            box-shadow:
+                0 12px 36px rgba(45, 28, 66, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            animation: adminToastIn 0.28s ease;
         }
-        .flash-success { background: #e8f7ef; color: #1f6e4d; border-color: #9fd9bc; }
-        .flash-error { background: #fdecec; color: #9f2f2f; border-color: #efb0b0; }
-        .flash-warning { background: #fff4df; color: #8a5510; border-color: #f0cf95; }
-        .flash-info { background: #eaf1ff; color: #2b4f99; border-color: #b7c9ef; }
+        .flash-toast span:first-child { flex: 1; line-height: 1.45; }
+        .flash-success { border-left: 4px solid var(--success); }
+        .flash-error { border-left: 4px solid var(--danger); }
+        .flash-warning { border-left: 4px solid var(--warning); }
+        .flash-info { border-left: 4px solid var(--info); }
         .flash-close {
+            flex-shrink: 0;
             border: none;
-            background: transparent;
-            color: inherit;
-            font-size: 1rem;
+            border-radius: 8px;
+            background: rgba(45, 28, 66, 0.06);
+            color: var(--text-mid);
+            font-size: 1.05rem;
             cursor: pointer;
-            opacity: 0.8;
             line-height: 1;
+            padding: 0.2rem 0.45rem;
+            margin-top: -0.1rem;
+            opacity: 0.85;
+            transition: background 0.18s, color 0.18s;
         }
-        .flash-close:hover { opacity: 1; }
-        .flash-toast.hide { opacity: 0; transform: translateY(-8px); transition: opacity 0.25s ease, transform 0.25s ease; }
+        .flash-close:hover {
+            opacity: 1;
+            background: rgba(45, 28, 66, 0.12);
+            color: var(--violet-night);
+        }
+        .flash-toast.hide {
+            opacity: 0;
+            transform: translateX(12px) translateY(6px);
+            transition: opacity 0.28s ease, transform 0.28s ease;
+        }
+        @keyframes adminToastIn {
+            from { opacity: 0; transform: translateX(14px) translateY(8px); }
+            to { opacity: 1; transform: translateX(0) translateY(0); }
+        }
         .admin-mobile-topbar { display: none; }
 
         @media (max-width: 768px) {
             .admin-mobile-topbar { display: flex; }
-            .flash-stack { top: 66px; }
+            .flash-stack { bottom: 1rem; right: 0.75rem; width: min(360px, calc(100vw - 1.25rem)); }
         }
     </style>
     @stack('styles')

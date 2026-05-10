@@ -275,7 +275,7 @@
                     <div class="cart-item">
                         <div class="cart-item-img">
                             @if($item['image'] && $item['image'] !== 'example.image')
-                                <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['pName'] }}">
+                                <img src="{{ asset($item['image']) }}" alt="{{ $item['pName'] }}">
                             @else
                                 <span class="cart-item-img-ph">💄</span>
                             @endif

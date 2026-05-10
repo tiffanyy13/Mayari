@@ -211,8 +211,8 @@ select.form-control {
 }
 
 /*admin layout*/
-.admin-body  { background: #f3eef8; }
-.admin-wrapper { display: flex; min-height: 100vh; }
+.admin-body  { background: #f3eef8; overflow-x: clip; }
+.admin-wrapper { display: flex; min-height: 100vh; min-width: 0; max-width: 100%; }
 
 .sidebar {
     width: 220px;
@@ -277,7 +277,10 @@ select.form-control {
     flex: 1;
     padding: 2rem;
     overflow-y: auto;
+    overflow-x: hidden;
     min-height: 100vh;
+    min-width: 0;
+    max-width: 100%;
 }
 
 /*admin stats*/
@@ -798,7 +801,8 @@ thead th {
     .stats-row { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 900px) {
+/* Tablet: stacked layout + horizontal sidebar (does not apply below 769px — mobile drawer owns that range) */
+@media (min-width: 769px) and (max-width: 900px) {
     .admin-wrapper { flex-direction: column; }
     .sidebar {
         width: 100%;
@@ -836,6 +840,13 @@ thead th {
         flex: 0 0 auto;
     }
     .btn-sidebar-logout { width: auto; padding: 0.5rem 1rem; }
+    .admin-main {
+        padding: 1.25rem 1rem 2rem;
+        min-height: 0;
+    }
+}
+
+@media (max-width: 900px) {
     .admin-main {
         padding: 1.25rem 1rem 2rem;
         min-height: 0;
@@ -927,6 +938,7 @@ thead th {
 @media (max-width: 768px) {
     .admin-wrapper {
         flex-direction: column;
+        min-height: 100dvh;
     }
 
     .sidebar {

@@ -6,9 +6,9 @@ namespace App\Providers;
 
 
 
-use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ServiceProvider;
 
 
 
@@ -41,6 +41,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
 
     {
+
+        Paginator::defaultView('vendor.pagination.mayari');
 
         if (env('APP_ENV') === 'production') {
 

@@ -129,7 +129,6 @@
         .form-row { grid-template-columns:1fr; }
     }
 
-    /* ── MOBILE RESPONSIVE – auth ── */
     @media (max-width: 768px) {
         .auth-left  { display: none !important; }
         .auth-right { width: 100% !important; padding: 2.5rem 1.75rem !important; }
@@ -170,9 +169,10 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="phoneNumber">Phone Number</label>
-                <input type="text" name="phone" id="phone" maxlength="13" inputmode="numeric" class="form-control @error('phone') is-invalid @enderror"
-                    value="{{ old('phone') }}" placeholder="09XXXXXXXXX or +639XXXXXXXXX" required>
+                <label for="phone">Mobile number (Philippines)</label>
+                <input type="text" name="phone" id="phone" maxlength="11" inputmode="numeric" autocomplete="tel" pattern="09[0-9]{9}" class="form-control @error('phone') is-invalid @enderror"
+                    value="{{ old('phone') }}" placeholder="09171234567" required>
+                <small style="display:block;margin-top:0.35rem;font-size:0.78rem;color:var(--text-light);">11 digits, starting with 09 (e.g. 09171234567).</small>
                 @error('phone')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
             <div class="form-group">

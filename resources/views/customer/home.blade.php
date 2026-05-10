@@ -393,12 +393,12 @@
             data-category="{{ e($product->category->cName ?? 'PRODUCT') }}"
             data-desc="{{ e($product->descript) }}"
             data-price="₱{{ number_format($product->price, 2) }}"
-            data-image="{{ $product->image && $product->image !== 'example.image' ? asset('storage/' . $product->image) : '' }}"
+            data-image="{{ $product->image && $product->image !== 'example.image' ? asset($product->image) : '' }}"
             data-variants='@json($product->variants ?? [])'
             data-add-url="{{ route('customer.cart.add', $product->productID) }}">
             <div class="product-img">
                 @if($product->image && $product->image !== 'example.image')
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->pName }}">
+                    <img src="{{ asset($product->image) }}" alt="{{ $product->pName }}">
                 @else
                     <span class="product-img-placeholder">💄</span>
                 @endif

@@ -26,15 +26,38 @@
         overflow-y: auto;
     }
 
-    /* manage products w mobile reponsive*/
+    .manage-products-page .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .manage-products-page .admin-products-table { min-width: 920px; table-layout: fixed; width: 100%; }
+    .manage-products-page .admin-products-table th,
+    .manage-products-page .admin-products-table td { vertical-align: middle; overflow-wrap: anywhere; word-break: break-word; }
+    .manage-products-page .col-thumb { width: 56px; }
+    .manage-products-page .col-name { width: 22%; }
+    .manage-products-page .col-cat { width: 14%; }
+    .manage-products-page .col-price { width: 10%; }
+    .manage-products-page .col-stock { width: 12%; }
+    .manage-products-page .col-variants { width: 22%; }
+    .manage-products-page .col-actions { width: 18%; text-align: right; }
+    .manage-products-page .prod-thumb {
+        width: 44px; height: 44px; border-radius: 10px; overflow: hidden;
+        background: var(--porcelain-light); display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem; opacity: 0.45;
+    }
+    .manage-products-page .prod-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .manage-products-page .prod-name { font-weight: 600; color: var(--violet-night); }
+    .manage-products-page .variants-cell { font-size: 0.8rem; color: var(--text-mid); line-height: 1.35; max-height: 2.7em; overflow: hidden; }
+    .manage-products-page.data-table { max-width: 100%; min-width: 0; }
     @media (max-width: 768px) {
         .page-actions { flex-direction: column !important; align-items: flex-start !important; gap: 0.75rem !important; }
         .page-actions h1 { font-size: 1.4rem !important; }
         .page-actions-btns { width: 100%; flex-wrap: wrap; }
-        .products-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.85rem !important; }
-    }
-    @media (max-width: 480px) {
-        .products-grid { grid-template-columns: 1fr !important; }
+        #addModal .modal,
+        #editModal .modal {
+            max-height: min(92dvh, 100%);
+        }
+        .manage-products-page .table-wrap {
+            margin: 0 -0.25rem;
+            padding: 0 0.25rem;
+        }
     }
 </style>
 @endpush
@@ -54,7 +77,7 @@
     </div>
 </div>
 
-{{--products--}}
+{{--products (table + pagination)--}}
 @if($products->isEmpty())
 <div style="text-align:center;padding:5rem 2rem;color:var(--text-light);">
     <div style="font-size:3rem;margin-bottom:1rem;opacity:.3;">📦</div>
@@ -62,51 +85,86 @@
     <p>Add your first product to get started.</p>
 </div>
 @else
-<div class="products-grid">
-    @foreach($products as $product)
-    <div class="product-card">
-        <div class="product-card-img">
-            @if($product->image && $product->image !== 'example.image')
-                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->pName }}" style="width:100%;height:100%;object-fit:cover;">
-            @else
-                <span style="font-size:2.5rem;opacity:.3;">💄</span>
-            @endif
-        </div>
-        <div class="product-card-body">
-            <div class="product-cat-label">{{ strtoupper($product->category->cName ?? '') }}</div>
-            <div class="product-card-name">{{ $product->pName }}</div>
-            <div class="product-card-price">₱{{ number_format($product->price, 2) }}</div>
-            @if(!empty($product->variants))
-                <div style="font-size:0.72rem;color:var(--text-light);margin-bottom:0.45rem;">
-                    {{ implode(' · ', $product->variants) }}
-                </div>
-            @endif
-            @php
-                $stock = (int) $product->stock;
-                if ($stock <= 0) { $stockText = "Out of Stock (0)"; $stockColor = 'var(--danger)'; }
-                elseif ($stock <= 9) { $stockText = "Low Stock ({$stock})"; $stockColor = 'var(--warning)'; }
-                elseif ($stock > 10) { $stockText = "In Stock ({$stock})"; $stockColor = 'var(--success)'; }
-                else { $stockText = "In Stock ({$stock})"; $stockColor = 'var(--success)'; }
-            @endphp
-            <div class="product-stock" style="color:{{ $stockColor }};">
-                {{ $stockText }}
-            </div>
-            <div class="product-card-actions">
-                <form action="{{ route('admin.products.archive', $product->productID) }}" method="POST" style="flex:1;">
-                    @csrf @method('PATCH')
-                    <button type="submit" class="btn-archive-card" onclick="return confirm('Archive {{ addslashes($product->pName) }}?')">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/></svg>
-                        Archive
-                    </button>
-                </form>
-                <button class="btn btn-outline btn-sm" style="flex:1;"
-                    onclick="openEditModal({{ $product->productID }}, '{{ addslashes($product->pName) }}', '{{ $product->categoryID }}', {{ $product->price }}, {{ $product->stock }}, '{{ addslashes($product->descript) }}', '{{ addslashes(implode(', ', $product->variants ?? [])) }}')">
-                    Edit
-                </button>
-            </div>
-        </div>
+<div class="data-table manage-products-page">
+    <div class="table-wrap">
+        <table class="admin-products-table">
+            <thead>
+                <tr>
+                    <th class="col-thumb"></th>
+                    <th class="col-name">Product</th>
+                    <th class="col-cat">Category</th>
+                    <th class="col-price">Price</th>
+                    <th class="col-stock">Stock</th>
+                    <th class="col-variants">Variants</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($products as $product)
+                @php
+                    $stock = (int) $product->stock;
+                    if ($stock <= 0) { $stockText = 'Out of Stock (0)'; $stockColor = 'var(--danger)'; }
+                    elseif ($stock <= 9) { $stockText = "Low Stock ({$stock})"; $stockColor = 'var(--warning)'; }
+                    else { $stockText = "In Stock ({$stock})"; $stockColor = 'var(--success)'; }
+                    $variantStr = !empty($product->variants) ? implode(', ', $product->variants) : '—';
+                    $editPayload = [
+                        'id' => $product->productID,
+                        'name' => $product->pName,
+                        'categoryID' => $product->categoryID,
+                        'price' => (float) $product->price,
+                        'stock' => (int) $product->stock,
+                        'descript' => $product->descript,
+                        'variants' => implode(', ', $product->variants ?? []),
+                    ];
+                @endphp
+                <tr>
+                    <td class="col-thumb">
+                        <div class="prod-thumb">
+                            @if($product->image && $product->image !== 'example.image')
+                                <img src="{{ asset($product->image) }}" alt="">
+                            @else
+                                <span aria-hidden="true">💄</span>
+                            @endif
+                        </div>
+                    </td>
+                    <td class="col-name">
+                        <div class="prod-name">{{ $product->pName }}</div>
+                    </td>
+                    <td class="col-cat">{{ $product->category->cName ?? '—' }}</td>
+                    <td class="col-price">₱{{ number_format($product->price, 2) }}</td>
+                    <td class="col-stock"><span style="font-weight:600;font-size:0.82rem;color:{{ $stockColor }};">{{ $stockText }}</span></td>
+                    <td class="col-variants">
+                        <div class="variants-cell" title="{{ $variantStr }}">{{ $variantStr }}</div>
+                    </td>
+                    <td class="col-actions">
+                        <div class="action-btns" style="justify-content:flex-end;">
+                            <form action="{{ route('admin.products.archive', $product->productID) }}" method="POST" style="display:inline;">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="btn-action btn-cancel" onclick="return confirm('Archive {{ addslashes($product->pName) }}?')">Archive</button>
+                            </form>
+                            <button type="button" class="btn btn-outline btn-sm open-edit-product" data-product='@json($editPayload)'>Edit</button>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
-    @endforeach
+
+    {{--pagination (same bar as Orders / Customers)--}}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.5rem;background:var(--violet-night);color:var(--porcelain);">
+        @if($products->onFirstPage())
+            <span style="color:rgba(233,213,230,0.4);font-size:0.82rem;font-weight:500;">← Previous</span>
+        @else
+            <a href="{{ $products->previousPageUrl() }}" style="color:var(--porcelain);text-decoration:none;font-size:0.82rem;font-weight:500;transition:opacity 0.18s;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">← Previous</a>
+        @endif
+        <span style="font-size:0.82rem;">Page {{ $products->currentPage() }}</span>
+        @if($products->hasMorePages())
+            <a href="{{ $products->nextPageUrl() }}" style="color:var(--porcelain);text-decoration:none;font-size:0.82rem;font-weight:500;transition:opacity 0.18s;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Next →</a>
+        @else
+            <span style="color:rgba(233,213,230,0.4);font-size:0.82rem;font-weight:500;">Next →</span>
+        @endif
+    </div>
 </div>
 @endif
 
@@ -248,33 +306,46 @@ function selectCat(btn, inputId) {
     btn.classList.add('active');
     document.getElementById(inputId).value = btn.dataset.id;
 }
-function openEditModal(id, name, catId, price, stock, desc, variants) {
-    document.getElementById('editForm').action = `/admin/products/${id}`;
-    document.getElementById('editName').value = name;
-    document.getElementById('editPrice').value = price;
-    document.getElementById('editStock').value = stock;
-    document.getElementById('editDesc').value = desc;
-    document.getElementById('editVariants').value = variants || '';
-    document.querySelectorAll('#editCatSelector .cat-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.id == catId);
+function openEditProductFromPayload(p) {
+    document.getElementById('editForm').action = '/admin/products/' + p.id;
+    document.getElementById('editName').value = p.name;
+    document.getElementById('editPrice').value = p.price;
+    document.getElementById('editStock').value = p.stock;
+    document.getElementById('editDesc').value = p.descript;
+    document.getElementById('editVariants').value = p.variants || '';
+    document.querySelectorAll('#editCatSelector .cat-btn').forEach(function (el) {
+        el.classList.toggle('active', el.dataset.id == p.categoryID);
     });
-    document.getElementById('editCatInput').value = catId;
+    document.getElementById('editCatInput').value = p.categoryID;
     openModal('editModal');
 }
+function openEditProduct(btn) {
+    openEditProductFromPayload(JSON.parse(btn.dataset.product));
+}
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.open-edit-product');
+    if (btn) {
+        e.preventDefault();
+        openEditProduct(btn);
+    }
+});
 @if(session('openAdd')) openModal('addModal'); @endif
 @if(session('openEdit'))
 (function() {
     @foreach($products as $p)
         @if($p->productID == session('openEdit'))
-            openEditModal(
-                {{ $p->productID }},
-                '{{ addslashes(old('pName', $p->pName)) }}',
-                '{{ old('categoryID', $p->categoryID) }}',
-                {{ old('price', $p->price) }},
-                {{ old('stock', $p->stock) }},
-                '{{ addslashes(old('descript', $p->descript)) }}',
-                '{{ addslashes(old('variants', implode(', ', $p->variants ?? []))) }}'
-            );
+            @php
+                $openEditPayload = [
+                    'id' => $p->productID,
+                    'name' => old('pName', $p->pName),
+                    'categoryID' => old('categoryID', $p->categoryID),
+                    'price' => (float) old('price', $p->price),
+                    'stock' => (int) old('stock', $p->stock),
+                    'descript' => old('descript', $p->descript),
+                    'variants' => old('variants', implode(', ', $p->variants ?? [])),
+                ];
+            @endphp
+            openEditProductFromPayload(@json($openEditPayload));
         @endif
     @endforeach
 })();

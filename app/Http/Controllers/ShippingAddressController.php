@@ -20,9 +20,10 @@ class ShippingAddressController extends Controller
     {
         $user = Auth::user();
 
-        $data = $request->validate([
+        $data = $request->validate(
+            [
             'fullName' => 'required|string|max:160',
-            'phone' => 'required|string|max:20',
+            'phone' => ['required', 'string', 'size:11', 'regex:/^09[0-9]{9}$/'],
             'addressLine' => 'required|string|max:255',
             'city' => 'required|string|max:100',
             'province' => 'required|string|max:100',
@@ -32,7 +33,13 @@ class ShippingAddressController extends Controller
             'label' => 'required|string|max:30',
             'makeDefault' => 'nullable|boolean',
             'redirect' => 'nullable|string|max:255',
-        ]);
+            ],
+            [
+                'phone.required' => 'Please enter a mobile number.',
+                'phone.size'     => 'Mobile number must be exactly 11 digits (e.g. 09171234567).',
+                'phone.regex'    => 'Use a Philippine mobile number: 11 digits starting with 09 (e.g. 09171234567).',
+            ]
+        );
 
         $hasAny = $user->shippingAddresses()->exists();
         $makeDefault = !$hasAny || (bool) ($request->input('makeDefault'));
@@ -66,9 +73,10 @@ class ShippingAddressController extends Controller
             abort(403);
         }
 
-        $data = $request->validate([
+        $data = $request->validate(
+            [
             'fullName' => 'required|string|max:160',
-            'phone' => 'required|string|max:20',
+            'phone' => ['required', 'string', 'size:11', 'regex:/^09[0-9]{9}$/'],
             'addressLine' => 'required|string|max:255',
             'city' => 'required|string|max:100',
             'province' => 'required|string|max:100',
@@ -78,7 +86,13 @@ class ShippingAddressController extends Controller
             'label' => 'required|string|max:30',
             'makeDefault' => 'nullable|boolean',
             'redirect' => 'nullable|string|max:255',
-        ]);
+            ],
+            [
+                'phone.required' => 'Please enter a mobile number.',
+                'phone.size'     => 'Mobile number must be exactly 11 digits (e.g. 09171234567).',
+                'phone.regex'    => 'Use a Philippine mobile number: 11 digits starting with 09 (e.g. 09171234567).',
+            ]
+        );
 
         $makeDefault = (bool) ($request->input('makeDefault'));
         if ($makeDefault) {

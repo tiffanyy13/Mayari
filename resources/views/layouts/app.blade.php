@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Mayari – @yield('title', 'Online Makeup Shop')</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -28,6 +29,8 @@
             background: var(--snow);
             color: var(--text-dark);
             min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: clip;
         }
         h1, h2, h3, h4, h5 {
             font-family: 'Inter', sans-serif;
@@ -112,7 +115,7 @@
         }
         .btn-logout:hover { background: rgba(233,213,230,0.15); color: #fff; }
 
-        /*alerts*/
+        /* inline alerts (forms) */
         .alert {
             padding: 0.85rem 1.2rem; border-radius: 8px; margin-bottom: 1rem;
             font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;
@@ -122,42 +125,86 @@
         .alert-warning { background: #fff4df; color: #8a5510; border: 1px solid #f0cf95; }
         .alert-info    { background: #eaf1ff; color: #2b4f99; border: 1px solid #b7c9ef; }
 
+        /* flash toasts — frosted glass, bottom-right */
         .flash-stack {
             position: fixed;
-            top: 74px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 1.25rem;
+            right: 1.25rem;
+            left: auto;
+            top: auto;
+            transform: none;
             z-index: 3000;
-            width: min(640px, calc(100% - 2rem));
+            width: min(380px, calc(100vw - 2rem));
             display: flex;
             flex-direction: column;
-            gap: 0.6rem;
+            gap: 0.55rem;
+            pointer-events: none;
         }
+        .flash-stack .flash-toast { pointer-events: auto; }
         .flash-toast {
             margin: 0;
-            box-shadow: 0 8px 24px rgba(45,28,66,0.18);
-            animation: toastIn 0.2s ease;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: flex-start;
             justify-content: space-between;
+            gap: 0.65rem;
             font-weight: 600;
-            opacity: 1;
-            background-clip: padding-box;
+            color: var(--text-dark);
+            background: rgba(255, 249, 255, 0.78);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(45, 28, 66, 0.12);
+            box-shadow:
+                0 12px 36px rgba(45, 28, 66, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            animation: toastIn 0.28s ease;
         }
-        .flash-toast .flash-text { flex: 1; }
+        .flash-toast.alert-success {
+            border-left: 4px solid var(--success);
+            color: var(--text-dark);
+        }
+        .flash-toast.alert-danger {
+            border-left: 4px solid var(--danger);
+            color: var(--text-dark);
+        }
+        .flash-toast.alert-warning {
+            border-left: 4px solid var(--warning);
+            color: var(--text-dark);
+        }
+        .flash-toast.alert-info {
+            border-left: 4px solid var(--info);
+            color: var(--text-dark);
+        }
+        .flash-toast .flash-text { flex: 1; line-height: 1.45; }
         .flash-close {
-            background: transparent;
+            flex-shrink: 0;
+            background: rgba(45, 28, 66, 0.06);
             border: none;
-            color: inherit;
+            border-radius: 8px;
+            color: var(--text-mid);
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.05rem;
             line-height: 1;
-            margin-left: 0.6rem;
-            opacity: 0.75;
+            padding: 0.2rem 0.45rem;
+            margin-top: -0.1rem;
+            opacity: 0.85;
+            transition: background 0.18s, color 0.18s;
         }
-        .flash-close:hover { opacity: 1; }
-        .flash-toast.hide { opacity: 0; transform: translateY(-8px); transition: opacity 0.25s ease, transform 0.25s ease; }
+        .flash-close:hover {
+            opacity: 1;
+            background: rgba(45, 28, 66, 0.12);
+            color: var(--violet-night);
+        }
+        .flash-toast.hide {
+            opacity: 0;
+            transform: translateX(12px) translateY(6px);
+            transition: opacity 0.28s ease, transform 0.28s ease;
+        }
         @keyframes toastIn {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateX(14px) translateY(8px); }
+            to { opacity: 1; transform: translateX(0) translateY(0); }
         }
 
         /*buttons*/
@@ -293,7 +340,7 @@
 </div>
 @yield('content')
 <footer class="site-footer">
-    <p>&copy; {{ date('Y') }} Mayari &mdash; <em>Where beauty meets simplicity.</em></p>
+    <p>&copy; {{ date('Y') }} Mayari &mdash; <em>Gorgeous eve.</em></p>
 </footer>
 @stack('scripts')
 <script>

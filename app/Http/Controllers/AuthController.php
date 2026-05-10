@@ -36,13 +36,20 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $data = $request->validate([
-            'firstName'   => 'required|string|max:100',
-            'lastName'    => 'required|string|max:100',
-            'phone' => ['required', 'string', 'max:13', 'regex:/^(09\\d{9}|\\+639\\d{9})$/'],
-            'email'       => 'required|email|unique:users,email',
-            'password'    => 'required|min:8|confirmed',
-        ]);
+        $data = $request->validate(
+            [
+                'firstName' => 'required|string|max:100',
+                'lastName'  => 'required|string|max:100',
+                'phone'     => ['required', 'string', 'size:11', 'regex:/^09[0-9]{9}$/'],
+                'email'     => 'required|email|unique:users,email',
+                'password'  => 'required|min:8|confirmed',
+            ],
+            [
+                'phone.required' => 'Please enter your mobile number.',
+                'phone.size'     => 'Mobile number must be exactly 11 digits (e.g. 09171234567).',
+                'phone.regex'    => 'Use a Philippine mobile number: 11 digits starting with 09 (e.g. 09171234567).',
+            ]
+        );
         $user = User::create([
             'firstName'   => $data['firstName'],
             'lastName'    => $data['lastName'],

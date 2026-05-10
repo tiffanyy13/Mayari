@@ -200,8 +200,9 @@
                 </div>
                 <div class="profile-field-row">
                     <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="text" name="phone" maxlength="13" inputmode="numeric" class="form-control" value="{{ old('phoneNumber', $user->phone) }}" placeholder="09XXXXXXXXX or +639XXXXXXXXX">
+                        <label>Mobile number (Philippines)</label>
+                        <input type="text" name="phone" maxlength="11" inputmode="numeric" autocomplete="tel" pattern="09[0-9]{9}" class="form-control" value="{{ old('phone', $user->phone) }}" placeholder="09171234567">
+                        <small style="display:block;margin-top:0.35rem;font-size:0.78rem;color:var(--text-light);">11 digits, starting with 09 (e.g. 09171234567).</small>
                         @error('phone')<span class="invalid-feedback">{{ $message }}</span>@enderror
                     </div>
                     <div class="form-group">
