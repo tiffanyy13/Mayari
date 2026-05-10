@@ -272,10 +272,11 @@
                 <div class="cart-panel">
                     <div class="cart-panel-header"><h3>Items ({{ count($cartItems) }})</h3></div>
                     @foreach($cartItems as $item)
+                    @php($itemImgHref = \App\Models\Product::normalizeStoredImageHref($item['image']))
                     <div class="cart-item">
                         <div class="cart-item-img">
-                            @if($item['image'] && $item['image'] !== 'example.image')
-                                <img src="{{ asset($item['image']) }}" alt="{{ $item['pName'] }}">
+                            @if($itemImgHref)
+                                <img src="{{ $itemImgHref }}" alt="{{ $item['pName'] }}">
                             @else
                                 <span class="cart-item-img-ph">💄</span>
                             @endif

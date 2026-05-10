@@ -33,12 +33,13 @@
             </thead>
             <tbody>
                 @foreach($products as $product)
+                @php($archThumbHref = $product->storedImageHref())
                 <tr>
                     <td>
                         <div style="display:flex;align-items:center;gap:.85rem;">
                             <div style="width:44px;height:44px;border-radius:8px;background:var(--porcelain-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem;overflow:hidden;">
-                                @if($product->image && $product->image !== 'example.image')
-                                    <img src="{{ asset($product->image) }}" alt="{{ $product->pName }}" style="width:100%;height:100%;object-fit:cover;">
+                                @if($archThumbHref)
+                                    <img src="{{ $archThumbHref }}" alt="{{ $product->pName }}" style="width:100%;height:100%;object-fit:cover;">
                                 @else
                                     💄
                                 @endif
