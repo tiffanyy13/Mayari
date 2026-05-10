@@ -115,13 +115,14 @@
                         'stock' => (int) $product->stock,
                         'descript' => $product->descript,
                         'variants' => implode(', ', $product->variants ?? []),
+                        'image_url' => preg_match('#^https?://#i', (string) ($product->image ?? '')) ? $product->image : '',
                     ];
                 @endphp
                 <tr>
                     <td class="col-thumb">
                         <div class="prod-thumb">
                             @if($product->image && $product->image !== 'example.image')
-                                <img src="{{ $product->image }}" alt="">
+                                <img src="{{ asset($product->image) }}" alt="">
                             @else
                                 <span aria-hidden="true">💄</span>
                             @endif
@@ -216,6 +217,11 @@
                     <small style="color:var(--text-light);font-size:0.75rem;">Upload JPG, PNG, or WEBP (max 2MB).</small>
                 </div>
                 <div class="form-group">
+                    <label>Or image URL (optional)</label>
+                    <input type="url" name="image_url" class="form-control" placeholder="https://…" value="{{ session('openAdd') ? old('image_url') : '' }}">
+                    <small style="color:var(--text-light);font-size:0.75rem;">Paste a link to a hosted image (Imgur, Cloudinary, etc.). On Render this avoids uploads disappearing after deploy. If you upload a file above, the file wins.</small>
+                </div>
+                <div class="form-group">
                     <label>Colors / Shades / Tones (optional)</label>
                     <input type="text" name="variants" class="form-control" placeholder="e.g. Ivory, Beige, Honey, Rose Nude" value="{{ session('openAdd') ? old('variants') : '' }}">
                     <small style="color:var(--text-light);font-size:0.75rem;">Enter options separated by commas. These will appear as selectable color/shade chips to customers.</small>
@@ -277,6 +283,11 @@
                     <small style="color:var(--text-light);font-size:0.75rem;">Upload a new image to replace the current one (max 2MB).</small>
                 </div>
                 <div class="form-group">
+                    <label>Or image URL (optional)</label>
+                    <input type="url" name="image_url" id="editImageUrl" class="form-control" placeholder="https://…">
+                    <small style="color:var(--text-light);font-size:0.75rem;">Replace with a hosted image URL. Leave blank to keep the current image if you are not uploading a file.</small>
+                </div>
+                <div class="form-group">
                     <label>Colors / Shades / Tones (optional)</label>
                     <input type="text" name="variants" id="editVariants" class="form-control" placeholder="e.g. Rose, Coral, Nude, Mauve">
                     <small style="color:var(--text-light);font-size:0.75rem;">Enter options separated by commas. These will appear as selectable color/shade chips to customers.</small>
@@ -313,6 +324,8 @@ function openEditProductFromPayload(p) {
     document.getElementById('editStock').value = p.stock;
     document.getElementById('editDesc').value = p.descript;
     document.getElementById('editVariants').value = p.variants || '';
+    document.getElementById('editImageUrl').value = p.image_url || '';
+    document.getElementById('editImage').value = '';
     document.querySelectorAll('#editCatSelector .cat-btn').forEach(function (el) {
         el.classList.toggle('active', el.dataset.id == p.categoryID);
     });
@@ -343,6 +356,7 @@ document.addEventListener('click', function (e) {
                     'stock' => (int) old('stock', $p->stock),
                     'descript' => old('descript', $p->descript),
                     'variants' => old('variants', implode(', ', $p->variants ?? [])),
+                    'image_url' => old('image_url', preg_match('#^https?://#i', (string) ($p->image ?? '')) ? $p->image : ''),
                 ];
             @endphp
             openEditProductFromPayload(@json($openEditPayload));

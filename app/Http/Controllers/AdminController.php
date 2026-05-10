@@ -108,15 +108,21 @@ class AdminController extends Controller
             'descript'   => 'required|string',
             'variants'   => 'nullable|string|max:500',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'image_url'  => 'nullable|string|max:2048|url',
         ]);
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput()->with('openAdd', true);
         }
         $data = $validator->validated();
+        unset($data['image'], $data['image_url']);
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images/products', 's3');
-            $data['image'] = Storage::disk('s3')->url($path);
+            $file = $request->file('image');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('images/products'), $filename);
+            $data['image'] = 'images/products/' . $filename;
+        } elseif ($request->filled('image_url')) {
+            $data['image'] = trim((string) $request->input('image_url'));
         } else {
             $data['image'] = 'example.image';
         }
@@ -135,20 +141,23 @@ class AdminController extends Controller
             'descript'   => 'required|string',
             'variants'   => 'nullable|string|max:500',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'image_url'  => 'nullable|string|max:2048|url',
         ]);
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput()->with('openEdit', $product->productID);
         }
         $data = $validator->validated();
+        unset($data['image'], $data['image_url']);
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
-            // Delete old image from S3 if it exists
-            if ($product->image && $product->image !== 'example.image' && str_starts_with($product->image, 'http')) {
-                $oldPath = parse_url($product->image, PHP_URL_PATH);
-                Storage::disk('s3')->delete(ltrim($oldPath, '/'));
-            }
-            $path = $request->file('image')->store('images/products', 's3');
-            $data['image'] = Storage::disk('s3')->url($path);
+            $file = $request->file('image');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('images/products'), $filename);
+            $this->deleteLocalProductImageIfAny($product->image);
+            $data['image'] = 'images/products/' . $filename;
+        } elseif ($request->filled('image_url')) {
+            $this->deleteLocalProductImageIfAny($product->image);
+            $data['image'] = trim((string) $request->input('image_url'));
         }
         $product->update($data);
         return back()->with('success', 'Product updated.');
@@ -325,5 +334,22 @@ class AdminController extends Controller
         )));
 
         return empty($items) ? null : $items;
+    }
+
+    /**
+     * Remove a previously uploaded file under public/; skip placeholder and remote URLs.
+     */
+    private function deleteLocalProductImageIfAny(?string $stored): void
+    {
+        if (!$stored || $stored === 'example.image') {
+            return;
+        }
+        if (preg_match('#^https?://#i', $stored)) {
+            return;
+        }
+        $path = public_path($stored);
+        if (is_file($path)) {
+            @unlink($path);
+        }
     }
 }
