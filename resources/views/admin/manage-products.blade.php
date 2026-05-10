@@ -313,7 +313,6 @@ function openEditProductFromPayload(p) {
     document.getElementById('editStock').value = p.stock;
     document.getElementById('editDesc').value = p.descript;
     document.getElementById('editVariants').value = p.variants || '';
-    document.getElementById('editImage').value = '';
     document.querySelectorAll('#editCatSelector .cat-btn').forEach(function (el) {
         el.classList.toggle('active', el.dataset.id == p.categoryID);
     });

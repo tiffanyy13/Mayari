@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -112,12 +113,12 @@ class AdminController extends Controller
             return back()->withErrors($validator)->withInput()->with('openAdd', true);
         }
         $data = $validator->validated();
-        unset($data['image']);
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $data['image'] = $file->storeAs('images/products', $filename, 'public');
+            $file->move(public_path('images/products'), $filename);
+            $data['image'] = 'images/products/' . $filename;
         } else {
             $data['image'] = 'example.image';
         }
@@ -141,13 +142,16 @@ class AdminController extends Controller
             return back()->withErrors($validator)->withInput()->with('openEdit', $product->productID);
         }
         $data = $validator->validated();
-        unset($data['image']);
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $this->deleteLocalProductImageIfAny($product->image);
-            $data['image'] = $file->storeAs('images/products', $filename, 'public');
+            $file->move(public_path('images/products'), $filename);
+            if ($product->image && $product->image !== 'example.image') {
+                $oldPath = public_path($product->image);
+                if (file_exists($oldPath)) @unlink($oldPath);
+            }
+            $data['image'] = 'images/products/' . $filename;
         }
         $product->update($data);
         return back()->with('success', 'Product updated.');
@@ -324,29 +328,5 @@ class AdminController extends Controller
         )));
 
         return empty($items) ? null : $items;
-    }
-
-    /**
-     * Remove a previously uploaded file from the public disk or legacy public/ path.
-     */
-    private function deleteLocalProductImageIfAny(?string $stored): void
-    {
-        if (!$stored || $stored === 'example.image') {
-            return;
-        }
-        if (preg_match('#^https?://#i', $stored)) {
-            return;
-        }
-        $relative = ltrim(str_replace('\\', '/', $stored), '/');
-        $candidates = [
-            storage_path('app/public/'.$relative),
-            public_path($relative),
-        ];
-        foreach ($candidates as $path) {
-            if (is_file($path)) {
-                @unlink($path);
-                break;
-            }
-        }
     }
 }
