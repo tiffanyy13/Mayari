@@ -110,11 +110,15 @@ RUN php artisan storage:link || true
 
 # Set permissions
 
-RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache public/uploads \
+RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views \
 
-&& chown -R www-data:www-data storage bootstrap/cache public/uploads \
+storage/app/public/images/products \
 
-&& chmod -R 775 storage bootstrap/cache public/uploads
+bootstrap/cache public/uploads public/images/products \
+
+&& chown -R www-data:www-data storage bootstrap/cache public/uploads public/images/products \
+
+&& chmod -R 775 storage bootstrap/cache public/uploads public/images/products
 
 EXPOSE 10000
 

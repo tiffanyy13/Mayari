@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -43,8 +44,8 @@ class Product extends Model
     }
 
     /**
-     * Root-relative URL for product images. Prefer files on the public storage disk
-     * (/storage/…) — writable on Docker/Render — then legacy files under public/.
+     * Root-relative URL for product images.
+     * New uploads live on the public disk (/storage/…). Older rows may point at files under public/.
      */
     public static function normalizeStoredImageHref(?string $image): ?string
     {
@@ -57,9 +58,11 @@ class Product extends Model
         }
 
         $relative = ltrim($path, '/');
-        if (is_file(storage_path('app/public/'.$relative))) {
+
+        if (Storage::disk('public')->exists($relative)) {
             return '/storage/'.$relative;
         }
+
         if (is_file(public_path($relative))) {
             return '/'.$relative;
         }

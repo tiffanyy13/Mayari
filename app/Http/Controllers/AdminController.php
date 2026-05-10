@@ -113,12 +113,25 @@ class AdminController extends Controller
             return back()->withErrors($validator)->withInput()->with('openAdd', true);
         }
         $data = $validator->validated();
+        unset($data['image']);
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $file->move(public_path('images/products'), $filename);
-            $data['image'] = 'images/products/' . $filename;
+            try {
+                $file = $request->file('image');
+                $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+                $stored = $file->storeAs('images/products', $filename, 'public');
+                if ($stored === false) {
+                    throw new \RuntimeException('storeAs returned false');
+                }
+                $data['image'] = $stored;
+            } catch (\Throwable $e) {
+                report($e);
+
+                return back()
+                    ->withErrors(['image' => 'Could not save the image. Ensure storage/app/public is writable and run: php artisan storage:link'])
+                    ->withInput()
+                    ->with('openAdd', true);
+            }
         } else {
             $data['image'] = 'example.image';
         }
@@ -142,16 +155,26 @@ class AdminController extends Controller
             return back()->withErrors($validator)->withInput()->with('openEdit', $product->productID);
         }
         $data = $validator->validated();
+        unset($data['image']);
         $data['variants'] = $this->normalizeVariants($request->input('variants'));
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $file->move(public_path('images/products'), $filename);
-            if ($product->image && $product->image !== 'example.image') {
-                $oldPath = public_path($product->image);
-                if (file_exists($oldPath)) @unlink($oldPath);
+            try {
+                $file = $request->file('image');
+                $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+                $this->deleteStoredProductImage($product->image);
+                $stored = $file->storeAs('images/products', $filename, 'public');
+                if ($stored === false) {
+                    throw new \RuntimeException('storeAs returned false');
+                }
+                $data['image'] = $stored;
+            } catch (\Throwable $e) {
+                report($e);
+
+                return back()
+                    ->withErrors(['image' => 'Could not save the image. Ensure storage/app/public is writable and run: php artisan storage:link'])
+                    ->withInput()
+                    ->with('openEdit', $product->productID);
             }
-            $data['image'] = 'images/products/' . $filename;
         }
         $product->update($data);
         return back()->with('success', 'Product updated.');
@@ -328,5 +351,28 @@ class AdminController extends Controller
         )));
 
         return empty($items) ? null : $items;
+    }
+
+    /**
+     * Remove previous image from the public storage disk or legacy public/ path.
+     */
+    private function deleteStoredProductImage(?string $stored): void
+    {
+        if (!$stored || $stored === 'example.image') {
+            return;
+        }
+        if (preg_match('#^https?://#i', $stored)) {
+            return;
+        }
+        $relative = ltrim(str_replace('\\', '/', $stored), '/');
+        if (Storage::disk('public')->exists($relative)) {
+            Storage::disk('public')->delete($relative);
+
+            return;
+        }
+        $publicFile = public_path($relative);
+        if (is_file($publicFile)) {
+            @unlink($publicFile);
+        }
     }
 }

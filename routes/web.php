@@ -67,7 +67,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/reports/pdf',                      [AdminController::class, 'reportsPdf'])->name('reports.pdf');
 });
 
-Route::get('/fix-images', function () {
+Route::middleware(['auth', 'role:admin'])->get('/fix-images', function () {
     $map = [
         'BB Cream'          => 'images/products/bb-cream.jpg',
         'Brow Gel'          => 'images/products/brow-gel.jpg',
@@ -86,4 +86,8 @@ Route::get('/fix-images', function () {
     ];
 
     foreach ($map as $name => $path) {
-        \App\Models\Product::where('pName', $name)->update(['image' => $p
+        \App\Models\Product::where('pName', $name)->update(['image' => $path]);
+    }
+
+    return redirect()->route('admin.products')->with('success', 'Product image paths updated.');
+});
