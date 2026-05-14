@@ -333,7 +333,11 @@
                     <tr>
                         <td style="font-weight:700;">#{{ $order->orderID }}</td>
                         <td>{{ trim(($order->user->firstName ?? '') . ' ' . ($order->user->lastName ?? '')) ?: 'N/A' }}</td>
-                        <td>{{ $order->items->count() }} item(s)</td>
+                        <td style="font-size:9px;line-height:1.4;vertical-align:top;">
+                            @foreach($order->items as $line)
+                                {{ $line->summaryLine() }}@if(!$loop->last)<br>@endif
+                            @endforeach
+                        </td>
                         <td>&#8369;{{ number_format($order->total, 2) }}</td>
                         <td><span class="status {{ $statusClass }}">{{ $order->status }}</span></td>
                         <td>{{ \Carbon\Carbon::parse($order->createdAt)->setTimezone('Asia/Manila')->format('M d, Y') }}</td>

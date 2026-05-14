@@ -61,13 +61,38 @@
         color: var(--violet-night);
         background: var(--porcelain-light);
     }
-    #orderDetailsModal .modal-footer {
-        justify-content: stretch;
-    }
     #orderDetailsModal .order-detail-grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    #orderDetailsModal .modal-body .form-group {
+        margin-bottom: 1rem;
+    }
+    #orderDetailsModal .modal-body .order-modal-block > .form-group:last-child {
+        margin-bottom: 0;
+    }
+    #orderDetailsModal .modal-body .order-detail-grid-2 .form-group {
+        margin-bottom: 0;
+    }
+    #orderDetailsModal .modal-body .form-group label {
+        display: block;
+        margin-bottom: 0.45rem;
+    }
+    #orderDetailsModal .modal-body .form-control-static {
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        line-height: 1.55;
+        padding: 0.75rem 0.95rem;
+        min-height: auto;
+    }
+    #orderDetailsModal .modal-footer .form-group {
+        margin-bottom: 0;
+    }
+    #orderDetailsModal .modal-footer .form-group label {
+        margin-bottom: 0.45rem;
     }
     .manage-orders-tabs {
         display: flex;
@@ -90,13 +115,30 @@
         background: rgba(45, 28, 66, 0.25);
         border-radius: 4px;
     }
-    .manage-orders-page .data-table-head form {
+    .manage-orders-page .manage-orders-search {
+        display: flex;
+        align-items: stretch;
+        gap: 0.5rem;
+        margin-left: auto;
+        flex-shrink: 0;
         flex: 0 0 auto;
         min-width: 0;
     }
+    .manage-orders-page .manage-orders-search .search-input {
+        min-height: var(--control-height);
+        align-self: stretch;
+    }
+    .manage-orders-page .manage-orders-search button[type="submit"] {
+        min-width: var(--control-height);
+        min-height: var(--control-height);
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
     .manage-orders-page .admin-orders-table {
         width: 100%;
-        min-width: 980px;
+        min-width: 1020px;
         table-layout: fixed;
     }
     .manage-orders-page .admin-orders-table th,
@@ -106,13 +148,32 @@
         vertical-align: top;
     }
     .manage-orders-page .admin-orders-table th:nth-child(1),
-    .manage-orders-page .admin-orders-table td:nth-child(1) { width: 10%; }
+    .manage-orders-page .admin-orders-table td:nth-child(1) { width: 9%; }
     .manage-orders-page .admin-orders-table th:nth-child(2),
-    .manage-orders-page .admin-orders-table td:nth-child(2) { width: 14%; }
+    .manage-orders-page .admin-orders-table td:nth-child(2) { width: 13%; }
     .manage-orders-page .admin-orders-table th:nth-child(3),
-    .manage-orders-page .admin-orders-table td:nth-child(3) { width: 13%; }
+    .manage-orders-page .admin-orders-table td:nth-child(3) { width: 22%; }
+    .manage-orders-page .admin-orders-table td:nth-child(3) {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    .manage-orders-page .order-item-summary-line {
+        display: block;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        max-width: 100%;
+        font-size: 0.8rem;
+        color: var(--text-mid);
+        line-height: 1.5;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+    .manage-orders-page .order-item-summary-line + .order-item-summary-line {
+        margin-top: 0.2rem;
+    }
     .manage-orders-page .admin-orders-table th:nth-child(4),
-    .manage-orders-page .admin-orders-table td:nth-child(4) { width: 24%; }
+    .manage-orders-page .admin-orders-table td:nth-child(4) { width: 20%; }
     .manage-orders-page .admin-orders-table th:nth-child(5),
     .manage-orders-page .admin-orders-table td:nth-child(5) { width: 9%; }
     .manage-orders-page .admin-orders-table th:nth-child(6),
@@ -125,7 +186,7 @@
     @media (max-width: 640px) {
         .manage-orders-page h1[style] { font-size: 1.45rem !important; }
         #orderDetailsModal .order-detail-grid-2 { grid-template-columns: 1fr; }
-        #orderDetailsModal .modal-footer .form-control { min-width: 0; }
+        #orderDetailsModal .modal-footer .modal-inline-controls .form-control { min-width: 0; }
         #orderDetailsModal .modal {
             width: 100%;
             max-width: 100%;
@@ -296,10 +357,10 @@
                style="flex-shrink:0;padding:0.55rem 1.1rem;text-decoration:none;font-size:0.8rem;font-weight:{{ (request('status','all') === $val) ? '700' : '500' }};color:{{ (request('status','all') === $val) ? 'var(--violet-night)' : 'var(--text-mid)' }};border-bottom:3px solid {{ (request('status','all') === $val) ? 'var(--violet-night)' : 'transparent' }};margin-bottom:-2px;white-space:nowrap;transition:all 0.18s;letter-spacing:0.04em;">{{ $lbl }}</a>
             @endforeach
         </div>
-        <form action="{{ route('admin.orders') }}" method="GET" style="display:flex;align-items:center;gap:0.5rem;margin-left:auto;flex-shrink:0;">
+        <form action="{{ route('admin.orders') }}" method="GET" class="manage-orders-search">
             @if(request('status'))<input type="hidden" name="status" value="{{ request('status') }}">@endif
-            <input type="text" name="search" class="search-input" placeholder="Search order # or customer…" value="{{ request('search') }}" style="border-radius:4px;">
-            <button type="submit" style="background:var(--violet-night);border:none;border-radius:4px;padding:0.48rem 0.75rem;cursor:pointer;color:#fff;display:flex;align-items:center;">
+            <input type="text" name="search" class="search-input" placeholder="Search order # or customer…" value="{{ request('search') }}" style="border-radius:4px;flex:1;min-width:0;">
+            <button type="submit" style="background:var(--violet-night);border:none;border-radius:4px;cursor:pointer;color:#fff;">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35"/></svg>
             </button>
         </form>
@@ -334,7 +395,7 @@
                         <div style="font-weight:600;font-size:0.85rem;color:var(--violet-night);">{{ $order->items->count() }} {{ $order->items->count() === 1 ? 'item' : 'items' }}</div>
                         <div class="items-list">
                             @foreach($order->items->take(2) as $item)
-                                {{ $item->product->pName ?? 'Product' }}<br>
+                                <span class="order-item-summary-line" title="{{ $item->summaryLine() }}">{{ $item->summaryLine() }}</span>
                             @endforeach
                             @if($order->items->count() > 2)
                                 <span style="color:var(--text-light);">+{{ $order->items->count() - 2 }} more</span>
@@ -351,10 +412,7 @@
                     <td>
                         @php
                             $sc = strtolower($order->status);
-                            $itemsSummary = $order->items->map(function ($item) {
-                                $name = $item->product->pName ?? 'Product';
-                                return $name . ' x' . $item->quantity;
-                            })->implode("\n");
+                            $itemsSummary = $order->items->map(fn ($item) => $item->summaryLine())->implode("\n");
                             $customerName = trim(($order->user->firstName ?? '') . ' ' . ($order->user->lastName ?? ''));
                         @endphp
                         <span class="status-text {{ $sc }}">{{ $order->status }}</span>
@@ -433,7 +491,7 @@
                     <label>Total</label>
                     <div class="form-control-static order-total-emphasis" id="modalTotal"></div>
                 </div>
-                <div class="form-group" style="margin-bottom:0;">
+                <div class="form-group">
                     <label>Date</label>
                     <div class="form-control-static" id="modalDate"></div>
                 </div>
@@ -442,16 +500,16 @@
             <div class="order-modal-block">
                 <p class="modal-fieldset-heading">Customer details</p>
                 <div class="order-detail-grid-2">
-                    <div class="form-group" style="margin-bottom:0;">
+                    <div class="form-group">
                         <label>Name</label>
                         <div class="form-control-static" id="modalCustomer"></div>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
+                    <div class="form-group">
                         <label>Number</label>
                         <div class="form-control-static" id="modalContact"></div>
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom:0;">
+                <div class="form-group">
                     <label>Address</label>
                     <div class="form-control-static" id="modalAddress"></div>
                 </div>
@@ -460,16 +518,16 @@
             <div class="order-modal-block" id="modalPaymentSection">
                 <p class="modal-fieldset-heading">Payment details</p>
                 <div class="order-detail-grid-2">
-                    <div class="form-group" style="margin-bottom:0;">
+                    <div class="form-group">
                         <label>Sender name</label>
                         <div class="form-control-static" id="modalSenderName"></div>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
+                    <div class="form-group">
                         <label>GCash number</label>
                         <div class="form-control-static" id="modalGcashNumber"></div>
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom:0;">
+                <div class="form-group">
                     <label>Reference number</label>
                     <div class="form-control-static" id="modalReferenceNumber"></div>
                 </div>
@@ -481,8 +539,8 @@
                 @method('PATCH')
                 <div class="form-group" style="margin-bottom:0;">
                     <label for="modalStatusSelect">Update order status</label>
-                    <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;">
-                        <select name="status" id="modalStatusSelect" class="form-control" style="flex:1;min-width:0;">
+                    <div class="modal-inline-controls">
+                        <select name="status" id="modalStatusSelect" class="form-control">
                             @foreach(['Pending', 'Accepted', 'Shipped', 'Delivered', 'Canceled'] as $statusOption)
                                 <option value="{{ $statusOption }}">{{ $statusOption }}</option>
                             @endforeach

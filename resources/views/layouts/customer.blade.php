@@ -100,10 +100,7 @@
                         <span class="cart-badge">{{ $cartCount }}</span>
                     @endif
                 </a>
-                <form method="POST" action="{{ route('logout') }}" style="display:inline">
-                    @csrf
-                    <button type="submit" class="btn-logout">Log Out</button>
-                </form>
+                <a href="{{ route('logout') }}" class="btn-logout">Log Out</a>
             </div>
         </div>
     </nav>

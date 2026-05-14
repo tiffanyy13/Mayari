@@ -21,6 +21,7 @@
             --warning:      #e8a040;
             --danger:       #d95f5f;
             --info:         #5f8fd9;
+            --control-height: 2.75rem;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -114,6 +115,13 @@
             transition: all 0.18s; text-transform: uppercase; letter-spacing: 0.04em;
         }
         .btn-logout:hover { background: rgba(233,213,230,0.15); color: #fff; }
+        a.btn-logout {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1.2;
+            box-sizing: border-box;
+        }
 
         /* inline alerts (forms) */
         .alert {
@@ -223,6 +231,12 @@
         .btn-danger    { background: rgba(217,95,95,0.1); color: var(--danger); border: 1px solid rgba(217,95,95,0.3); }
         .btn-danger:hover { background: var(--danger); color: #fff; }
         .btn-sm  { padding: 0.4rem 0.9rem; font-size: 0.8rem; }
+        .modal-footer .btn.btn-sm {
+            min-height: var(--control-height);
+            padding-top: 0;
+            padding-bottom: 0;
+            font-size: 0.875rem;
+        }
         .btn-lg  { padding: 0.85rem 2rem; font-size: 1rem; }
         .btn-full { width: 100%; }
 
@@ -240,6 +254,11 @@
             color: var(--text-dark); background: #fff;
             transition: border-color 0.2s, box-shadow 0.2s; outline: none;
         }
+        input.form-control:not([type="hidden"]):not([type="file"]),
+        select.form-control {
+            min-height: var(--control-height);
+        }
+        textarea.form-control { min-height: auto; }
         .form-control:focus { border-color: var(--violet-mid); box-shadow: 0 0 0 3px rgba(45,28,66,0.08); }
         .form-control.is-invalid { border-color: var(--danger); }
         .invalid-feedback { color: var(--danger); font-size: 0.78rem; margin-top: 0.25rem; display: block; }
@@ -293,6 +312,33 @@
         .modal-footer {
             padding: 1rem 1.5rem; border-top: 1px solid var(--porcelain-light);
             display: flex; gap: 0.75rem; justify-content: flex-end;
+            align-items: stretch; flex-wrap: wrap;
+        }
+        .modal-footer .btn {
+            min-height: var(--control-height);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-footer form { display: inline-flex; align-items: stretch; }
+        .modal-footer form .btn { align-self: stretch; }
+
+        .modal-inline-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: stretch;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .modal-inline-controls > .form-control {
+            flex: 1;
+            min-width: 0;
+            min-height: var(--control-height);
+        }
+        .modal-inline-controls > .btn {
+            flex-shrink: 0;
+            min-height: var(--control-height);
+            align-self: stretch;
         }
 
         .site-footer {

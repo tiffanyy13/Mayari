@@ -85,7 +85,8 @@
     .badge-canceled  { color:#d95f5f; }
 
     .order-card-body { padding:0.55rem 1.25rem 0.75rem; border-top:1px solid var(--porcelain-light); }
-    .order-items-preview { font-size:0.8rem; color:var(--text-mid); }
+    .order-items-preview { font-size:0.8rem; color:var(--text-mid); line-height:1.55; }
+    .order-items-preview .oi-chip { white-space: nowrap; }
     .order-card-footer { display:flex; align-items:center; justify-content:space-between; padding:0 1.25rem 0.95rem; gap:0.5rem; }
     .order-meta { font-size:0.8rem; color:var(--text-light); }
     .order-total { font-weight:700; color:var(--violet-night); font-size:0.95rem; line-height:1.1; }
@@ -140,10 +141,7 @@
                 @php $cartCount = array_sum(array_column(session()->get('cart',[]),'quantity')); @endphp
                 @if($cartCount > 0)<span class="cart-badge">{{ $cartCount }}</span>@endif
             </a>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="btn-logout">Log Out</button>
-            </form>
+            <a href="{{ route('logout') }}" class="btn-logout">Log Out</a>
         </div>
     </div>
 </nav>
@@ -177,8 +175,8 @@
                 </div>
                 <div class="order-card-body">
                     <div class="order-items-preview">
-                        @foreach($order->items as $i => $item)
-                            {{ $item->product->pName ?? 'Product' }} x{{ $item->quantity }}@if(!$loop->last) · @endif
+                        @foreach($order->items as $item)
+                            <span class="oi-chip" title="{{ $item->summaryLine() }}">{{ $item->summaryLine() }}</span>@if(!$loop->last) · @endif
                         @endforeach
                     </div>
                 </div>

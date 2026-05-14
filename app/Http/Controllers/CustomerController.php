@@ -185,6 +185,13 @@ class CustomerController extends Controller
                         $name = $product->pName ?? "Product #{$productID}";
                         throw new \Exception("Sorry, \"{$name}\" no longer has enough stock. Please update your cart.");
                     }
+                    $allowedVariants = is_array($product->variants) ? $product->variants : [];
+                    if (!empty($allowedVariants)) {
+                        $picked = trim((string) ($item['variant'] ?? ''));
+                        if ($picked === '' || !in_array($picked, $allowedVariants, true)) {
+                            throw new \Exception("Please select a valid shade or color for \"{$product->pName}\" before checkout.");
+                        }
+                    }
                 }
 
                 $subtotal = 0;
@@ -218,10 +225,16 @@ class CustomerController extends Controller
                 foreach ($cartData as $productID => $item) {
                     $product = Product::find($productID);
                     if ($product) {
+                        $allowedVariants = is_array($product->variants) ? $product->variants : [];
+                        $variantToSave = null;
+                        if (!empty($allowedVariants)) {
+                            $variantToSave = trim((string) ($item['variant'] ?? ''));
+                        }
                         OrderItem::create([
                             'orderID'   => $order->orderID,
                             'productID' => $productID,
                             'quantity'  => $item['quantity'],
+                            'variant'   => $variantToSave ?: null,
                             'unitPrice' => $product->price,
                         ]);
                         // FIX: decrement stock now that the order item is saved

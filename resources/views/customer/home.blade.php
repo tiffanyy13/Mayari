@@ -317,10 +317,7 @@
                 Cart
                 @if($cartCount > 0)<span class="cart-badge">{{ $cartCount }}</span>@endif
             </a>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="btn-logout">Log Out</button>
-            </form>
+            <a href="{{ route('logout') }}" class="btn-logout">Log Out</a>
         </div>
     </div>
 </nav>

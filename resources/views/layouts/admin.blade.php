@@ -152,10 +152,9 @@
                     Reports
                 </a>
             </nav>
-            <form method="POST" action="{{ route('logout') }}" class="sidebar-logout">
-                @csrf
-                <button type="submit" class="btn-sidebar-logout">Log Out</button>
-            </form>
+            <div class="sidebar-logout">
+                <a href="{{ route('logout') }}" class="btn-sidebar-logout">Log Out</a>
+            </div>
         </aside>
         <div class="admin-main">
             @yield('content')

@@ -25,6 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 419);
             }
 
+            if ($request->routeIs('logout')) {
+                return redirect()
+                    ->route('login')
+                    ->with('warning', 'Your session had expired. Please sign in again.');
+            }
+
             return redirect()
                 ->back()
                 ->withInput($request->except('password', 'password_confirmation', '_token'))

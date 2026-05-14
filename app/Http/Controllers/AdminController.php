@@ -227,7 +227,7 @@ class AdminController extends Controller
         $reportType = $request->input('report_type', 'sales');
 
         //base query for summary counts
-        $baseQuery = Order::with(['user', 'items'])
+        $baseQuery = Order::with(['user', 'items.product'])
             ->whereBetween('createdAt', [$dateFrom, $dateTo]);
 
         $totalRevenue    = (clone $baseQuery)->whereNotIn('status', ['Canceled'])->sum('total');
@@ -286,7 +286,7 @@ class AdminController extends Controller
         $fromLabel  = $dateFrom->format('M d, Y');
         $toLabel    = $dateTo->format('M d, Y');
 
-        $baseOrders = Order::with(['user', 'items'])
+        $baseOrders = Order::with(['user', 'items.product'])
             ->whereBetween('createdAt', [$dateFrom, $dateTo]);
 
         $totalRevenue    = (clone $baseOrders)->whereNotIn('status', ['Canceled'])->sum('total');

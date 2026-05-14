@@ -178,10 +178,10 @@
     .modal-close { background:none; border:none; cursor:pointer; color:var(--text-light); font-size:1.3rem; transition:color 0.2s; }
     .modal-close:hover { color:var(--text-dark); }
     .modal-body { padding:1.5rem; color:var(--text-mid); font-size:0.9rem; line-height:1.6; }
-    .modal-footer { padding:1rem 1.5rem; border-top:1px solid var(--porcelain-light); display:flex; gap:0.75rem; justify-content:flex-end; }
-    .btn-cancel-modal { background:var(--porcelain-light); color:var(--text-mid); border:none; border-radius:6px; padding:0.6rem 1.4rem; font-family:'Inter',sans-serif; font-size:0.875rem; font-weight:500; cursor:pointer; transition:background 0.18s; }
+    .modal-footer { padding:1rem 1.5rem; border-top:1px solid var(--porcelain-light); display:flex; gap:0.75rem; justify-content:flex-end; align-items:stretch; flex-wrap:wrap; }
+    .btn-cancel-modal { background:var(--porcelain-light); color:var(--text-mid); border:none; border-radius:6px; padding:0 1.4rem; font-family:'Inter',sans-serif; font-size:0.875rem; font-weight:500; cursor:pointer; transition:background 0.18s; min-height:2.75rem; display:inline-flex; align-items:center; justify-content:center; }
     .btn-cancel-modal:hover { background:var(--porcelain); }
-    .btn-confirm { background:var(--violet-night); color:var(--snow); border:none; border-radius:6px; padding:0.6rem 1.4rem; font-family:'Inter',sans-serif; font-size:0.875rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-confirm { background:var(--violet-night); color:var(--snow); border:none; border-radius:6px; padding:0 1.4rem; font-family:'Inter',sans-serif; font-size:0.875rem; font-weight:600; cursor:pointer; transition:background 0.2s; min-height:2.75rem; display:inline-flex; align-items:center; justify-content:center; }
     .btn-confirm:hover { background:var(--violet-mid); }
 
     @media (max-width:980px) {
@@ -239,10 +239,7 @@
                 @php $cartCount = array_sum(array_column(session()->get('cart',[]),'quantity')); @endphp
                 @if($cartCount > 0)<span class="cart-badge">{{ $cartCount }}</span>@endif
             </a>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="btn-logout">Log Out</button>
-            </form>
+            <a href="{{ route('logout') }}" class="btn-logout">Log Out</a>
         </div>
     </div>
 </nav>

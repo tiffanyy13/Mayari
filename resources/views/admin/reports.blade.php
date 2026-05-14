@@ -320,7 +320,11 @@
                         <tr>
                             <td style="font-weight:600;">#{{ $order->orderID }}</td>
                             <td>{{ trim(($order->user->firstName ?? '') . ' ' . ($order->user->lastName ?? '')) ?: 'N/A' }}</td>
-                            <td>{{ $order->items->count() }} item(s)</td>
+                            <td style="font-size:0.8rem;line-height:1.45;max-width:14rem;">
+                                @foreach($order->items as $line)
+                                    <div>{{ $line->summaryLine() }}</div>
+                                @endforeach
+                            </td>
                             <td>₱{{ number_format($order->total, 2) }}</td>
                             <td><span class="badge {{ $badgeClass }}">{{ $order->status }}</span></td>
                             <td>{{ \Carbon\Carbon::parse($order->createdAt)->setTimezone('Asia/Manila')->format('M d, Y') }}</td>

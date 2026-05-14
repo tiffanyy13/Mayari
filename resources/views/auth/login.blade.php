@@ -90,6 +90,16 @@
         border-top: 1.5px solid #c4b0d0;
         margin: 1.25rem 0 1.75rem 0;
     }
+    .auth-flash-msg {
+        font-size: 0.85rem;
+        color: #8a5510;
+        background: #fff4df;
+        border: 1px solid #f0cf95;
+        border-radius: 8px;
+        padding: 0.65rem 0.85rem;
+        margin: -0.5rem 0 1.25rem;
+        line-height: 1.45;
+    }
 
     .form-group { margin-bottom: 1.1rem; }
     .form-group label { display:block; font-size:0.78rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-dark); margin-bottom:0.4rem; }
@@ -173,6 +183,10 @@
     <div class="auth-right">
         <h2>Log In</h2>
         <hr class="auth-divider">
+
+        @if(session('warning'))
+            <p class="auth-flash-msg" role="alert">{{ session('warning') }}</p>
+        @endif
 
         <form action="{{ route('login') }}" method="POST" novalidate>
             @csrf
